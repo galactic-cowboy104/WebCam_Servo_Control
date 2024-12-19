@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+
+    <head>
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>ESP32-CAM</title>
+
+        <style>
+            
+            body {
+                background-color: #B6B1B1;
+                font-family: Arial, Helvetica, sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+
+            header {
+                text-align: center;
+                padding: 10px;
+                background-color: #333;
+            }
+
+            h1 {
+                color: #F7EFEF;
+                font-size: 2.7rem;
+                -webkit-touch-callout: none;
+                user-select: none;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .main-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+                height: 70vh;
+            }
+
+            .container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                margin: 0 20px;
+            }
+
+            .image-container img {
+                max-width: 100%;
+                height: auto;
+                border: 2px solid #333;
+                border-radius: 15px;
+                box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3);
+            }
+
+            .controls-container {
+                text-align: center;
+            }
+
+            .switch {
+                position: relative;
+                display: inline-block;
+                width: 60px;
+                height: 34px;
+            }
+
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+            .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #ccc;
+                transition: 0.4s;
+                border-radius: 34px;
+            }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 26px;
+                width: 26px;
+                border-radius: 50%;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                transition: 0.4s;
+            }
+
+            input:checked + .slider {
+                background-color: #4CAF50;
+            }
+
+            input:checked + .slider:before {
+                transform: translateX(26px);
+            }
+
+            .slider-text {
+                font-size: 20px;
+                margin-top: 10px;
+                -webkit-touch-callout: none;
+                user-select: none;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .slider-container {
+                margin: 15px 0;
+                text-align: center;
+            }
+
+            input[type="range"] {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 325px;
+                height: 16px;
+                border-radius: 20px;
+                background: #C9EED5;
+                outline: none;
+                cursor: pointer;
+                transition: background 0.3s ease;
+            }
+
+            input[type="range"]:hover {
+                background: #B0D8BF;
+            }
+
+            input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                background: #15B838;
+                border-radius: 50%;
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+                cursor: pointer;
+                transition: transform 0.2s ease, background 0.3s ease;
+            }
+
+            input[type="range"]::-webkit-slider-thumb:active {
+                transform: scale(1.2);
+                background: #0A8D27;
+            }
+
+            input[type="range"]::-moz-range-thumb {
+                width: 20px;
+                height: 20px;
+                background: #15B838;
+                border-radius: 50%;
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+                cursor: pointer;
+                transition: transform 0.2s ease, background 0.3s ease;
+            }
+
+            input[type="range"]::-moz-range-thumb:active {
+                transform: scale(1.2);
+                background: #0A8D27;
+            }
+
+            input[type="range"]::-ms-thumb {
+                width: 20px;
+                height: 20px;
+                background: #15B838;
+                border-radius: 50%;
+                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+                cursor: pointer;
+                transition: transform 0.2s ease, background 0.3s ease;
+            }
+
+            input[type="range"]::-ms-thumb:active {
+                transform: scale(1.2);
+                background: #0A8D27;
+            }
+
+            input[type="range"]::-webkit-slider-runnable-track {
+                height: 16px;
+                background: #C9EED5;
+                border-radius: 20px;
+            }
+
+            input[type="range"]::-moz-range-track {
+                height: 16px;
+                background: #C9EED5;
+                border-radius: 20px;
+            }
+
+            input[type="range"]::-ms-track {
+                width: 100%;
+                height: 16px;
+                background: transparent;
+                border-color: transparent;
+                color: transparent;
+            }
+
+            input[type="range"]::-ms-fill-lower {
+                background: #C9EED5;
+                border-radius: 20px;
+            }
+
+            input[type="range"]::-ms-fill-upper {
+                background: #C9EED5;
+                border-radius: 20px;
+            }
+
+            .angle {
+                font-size: 20px;
+                font-weight: bold;
+                margin-top: 0;
+                -webkit-touch-callout: none;
+                user-select: none;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            @media (max-width: 900px) {
+
+                .main-container {
+                    flex-direction: column;
+                    align-items: stretch;
+                    justify-content: space-between;
+                    height: auto;
+                }
+
+                header {
+                    padding: 4px;
+                }
+
+                h1 {
+                    color: #F7EFEF;
+                    font-size: 2.2rem;
+                }
+
+                .image-container img {
+                    width: 92%;
+                }
+
+                .container {
+                    margin: 10px 0;
+                }
+
+                .slider-container {
+                    width: 65%;
+                }
+
+                input[type="range"] {
+                    width: 90%;
+                }
+
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <header>
+            <h1>ESP32-CAM</h1>
+        </header>
+
+        <div class="main-container">
+
+            <div class="container image-container">
+                <img src="" id="photo" alt="Camera Stream">
+            </div>
+
+            <div class="container controls-container">
+
+                <label class="switch">
+                    <input type="checkbox" id="flashSwitch" onchange="toggleFlash()">
+                    <span class="slider"></span>
+                </label>
+                <p class="slider-text" id="flashText">Flash: Apagado</p>
+
+                <div class="slider-container">
+                    <input type="range" id="angleSlider1" min="0" max="180" value="0" step="15" oninput="updateAngle(this.value, 'angleValue1')" />
+                    <p class="angle" id="angleValue1">Servo 1: 90°</p>
+                </div>
+
+                <div class="slider-container">
+                    <input type="range" id="angleSlider2" min="0" max="90" value="0" step="10" oninput="updateAngle(this.value, 'angleValue2')" />
+                    <p class="angle" id="angleValue2">Servo 2: 0°</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <script>
+
+            let flashOn = false;
+
+            function sendCommand(action) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "/action?do=" + action, true);
+                xhr.send();
+            }
+
+            function toggleFlash() {
+
+                flashOn = !flashOn;
+
+                const switchElement = document.getElementById("flashSwitch");
+                const flashText = document.getElementById("flashText");
+
+                if (flashOn) {
+                    sendCommand("flash-on");
+                    flashText.textContent = "Flash: Encendido";
+                } else {
+                    sendCommand("flash-off");
+                    flashText.textContent = "Flash: Apagado";
+                }
+
+            }
+
+            function updateAngle(value, servoID) {
+
+                const slider = document.getElementById(servoID);
+
+                if (servoID == 'angleValue1') {
+                    sendCommand("servo1-" + value);
+                    slider.innerText = "Servo 1: " + value + "°";
+                } else if (servoID == 'angleValue2') {
+                    sendCommand("servo2-" + value);
+                    slider.innerText = "Servo 2: " + value + "°";
+                }
+
+            }
+
+            window.onload = function () {
+
+                document.getElementById("photo").src = window.location.href.slice(0, -1) + ":81/stream";
+
+                const switchElement = document.getElementById("flashSwitch");
+                switchElement.checked = false;
+                sendCommand("flash-off");
+
+                const slider1 = document.getElementById('angleSlider1');
+                slider1.value = 90;
+                sendCommand("servo1-90");
+
+                const slider2 = document.getElementById('angleSlider2');
+                slider2.value = 0;
+                sendCommand("servo2-0");
+
+            };
+
+        </script>
+
+    </body>
+  
+</html>
